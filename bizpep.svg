@@ -1,0 +1,16 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+   <title>bizpep icon</title>
+	 <g transform="scale(1)">
+	  <line x1="32" y1="32" x2="32" y2="64" stroke-width="8" stroke="#ff6600" opacity="1" />
+	 
+		<text font-size='28' font-weight="600" font-family="arial" text-anchor="start" x="4" y="24" >b</text>
+		<text font-size='32' font-weight="900" font-family="arial" text-anchor="middle" x="32" y="24" fill="#ff6600">i</text>
+		<text font-size='28' font-weight="600" font-family="arial" text-anchor="end" x="60" y="24">z</text>
+		
+		<text font-size='28' font-weight="600" font-family="arial" text-anchor="start" x="4" y="54" >p</text>
+		<text font-size='28' font-weight="600" font-family="arial" text-anchor="middle" x="32" y="54">e</text>
+		<text font-size='28' font-weight="600" font-family="arial" text-anchor="end" x="60" y="54">p</text>
+		
+		<line x1="0" y1="32" x2="64" y2="32" stroke-width="8" stroke="#ff6600"/>
+	</g>
+</svg>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="" />
+
+<script>
+
+var http_request;
+var reqRes;
+var bodyNode;
+
+function init()
+{
+	bodyNode=document.getElementsByTagName("Body")[0];
+   //httpGet("dbf.xml");
+	
+	httpGet("dbp.xml");
+
+}
+
+function httpGet(file)
+{
+	if (window.XMLHttpRequest)
+  {
+	 http_request = new XMLHttpRequest();
+	 http_request.onreadystatechange = httpChange;
+   http_request.open('GET',file, true);
+   http_request.send(null);
+	}
+	else
+	{
+   alert("XMLHttpRequest error");
+  }
+}
+
+function httpChange()
+{
+ if (http_request.readyState == 4)
+ {
+  if (http_request.status == 200)
+  {
+   reqRes=http_request.responseXML;
+	 bodyNode.appendChild(reqRes.firstChild);
+	 formatRes();
+  }
+ }
+}
+
+function formatRes()
+{
+  
+	var accountsNode=document.getElementsByTagName("Accounts")[0];
+  
+	var dataNodes=document.getElementsByTagName("Account")[0].childNodes;
+  
+	var headerEl=document.createElement('header');
+	
+	for(var i=0;i<dataNodes.length;i++)
+	{
+		 var tag=dataNodes[i].tagName;
+		 newEl=document.createElement(tag);
+		 newTxt=document.createTextNode(tag);
+		 newEl.appendChild(newTxt);
+	   headerEl.appendChild(newEl);
+	}	
+	accountsNode.insertBefore(headerEl,accountsNode.childNodes[0]); 
+}
+
+</script>
+
+<style>
+
+Accounts {display:table; padding:0em; margin:0em; width:100%;line-height:2;}
+
+header {display:table-header-group; font-weight:700;background-color: rgba(204,204,255,.3)}
+header * {display:table-cell}
+
+Account {display:table-row;}
+Account * {display:table-cell}
+Account:nth-child(odd) {background-color: rgba(204,204,255,.1)}
+
+</style>
+
+</head>
+<body onload="init()">
+
+<div><a href="./dbf.html">dbf</a> <a href="./dbp.html">dbp</a></div>
+
+
+
+</body>
+</html>

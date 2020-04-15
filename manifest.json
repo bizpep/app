@@ -1,0 +1,17 @@
+{
+    "short_name": "Cashflow",
+    "name": "Cashflow Business",
+    "description": "Cashflow Business projection",
+    "icons": [
+        {
+            "src": "app64.svg",
+            "sizes": "64x64",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "./index.html",
+    "display": "standalone",
+    "orientation": "portrait",
+    "theme_color": "#ff9900",
+    "background_color": "#ffffff"
+}

@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+<head>
+
+<link rel="manifest" href="./manifest.json">
+
+<meta charset="UTF-8">
+<link rel="icon" href="./favicon.ico" />
+<link rel="shortcut icon" href="./favicon.ico" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="description" content="" />
+<meta name="keywords" content="" />
+
+<script>
+
+//window.onerror=errorSupress;
+function errorSupress()
+{
+  return true;
+}
+
+var appId="cfba";
+var appName="Cashflow Business";
+var build="20200410";
+var amount="4.99";
+
+var db='~';
+var lb='|';
+
+var email="No";
+var active='No';
+
+var edsum=0;
+edc();
+
+var accVarInit="Email"+db+email+lb+"Active"+db+active+lb+"XMLHttpRequest"+db+"-"+lb+"Local Storage"+db+"-"+lb+"Cookies"+db+"-"+lb+"Build"+db+build;
+var datVarInit="Revenue"+db+"100"+lb+"Fixed Costs"+db+"50"+lb+"Variable Costs"+db+"30";
+
+var accVar=accVarInit;
+var datVar=datVarInit;
+
+var accKey=appId+'accVar';
+var datKey=appId+'datVar';
+
+var varKeys = [accKey,datKey];
+
+var reClean= new RegExp("[^\\w'!#$%&*+-/=?\^`{|}~@\.\\s]","g");
+var reEmail= new RegExp("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$","ig");
+                              
+var infoNode;
+var infoTxt='Click ? for help, mouseover displays quick hints here';
+
+var overlayP='';
+
+var a='';
+var reqRes='';
+var action='';
+
+var reqUrl='db.php';
+ 
+if(document.cookie)
+{
+	a=document.cookie.split("; a=")[1].split(";")[0];
+}
+
+var ppurl="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick-subscriptions&business=H9A2BCWL7B7A4&no_shipping=1&no_note=1&currency_code=USD&return=http://bizpep.com/return.html&rm=2&cancel_return=http://bizpep.com/cancel.html&item_name="+appName+"&a3="+amount+"&p3=1&t3=M&src=1&sra=1&custom="+a;
+ 
+function init()
+{
+  infoNode=document.getElementById('info');
+	
+	initSto();
+	
+	loadGet();
+	loadAcc();
+  getAccVar();
+	
+	getDb();
+	
+	
+	//dataVarDo();
+	
+	disCookie();
+	
+	document.getElementById('buy').href = ppurl;
+		
+	helpHover();
+	qClick();
+	shClick()
+	
+	infoTxt='Click ? for help, mouseover displays quick hints here';	
+	infoNode.innerHTML=infoTxt;
+	
+	display('help');
+  display('app');
+}
+
+function initSto()
+{
+ if(typeof(localStorage) !== 'undefined')
+ {
+    if(!localStorage[accKey])
+		{
+		 localStorage[accKey]=accVar;
+		}
+		else
+		{
+		  accVar=localStorage[accKey];
+		}
+		if(!localStorage[datKey])
+		{
+		 localStorage[datKey]=datVar;
+		}
+		else
+		{
+		  datVar=localStorage[datKey];
+		}
+		infoTxt="Save initiated"; 
+ }
+}
+
+function loadGet()
+{
+ var n="";
+ var v="";
+ var urlq = window.location.search;
+  
+ //urlq='?c=33840441-21348038-31780440-30015978-29153011';
+ //urlq='?reset';
+ 
+ if(urlq)
+ {
+    urlq=urlq.substr(1);
+    var pairs=urlq.split("&");
+	 
+    for (var p=0;p < pairs.length;p++)
+    {
+       nvs=pairs[p].split("=");
+       for (var nv=0;nv < nvs.length;nv=nv+2)
+	     {	
+  	      if(nvs[nv]=="c")
+          {
+  	         dec(decodeURIComponent(nvs[nv+1]));            
+		      }
+		      else if(nvs[nv]=="display")
+		      {
+			       var show=decodeURIComponent(nv+1);
+             display(show);
+		      }
+		      else if(nvs[nv]=='reset')
+		      {
+		         resetSto();
+		      }
+	     }	 
+     }
+	}	 
+}
+
+function resetSto()
+{
+	 if(typeof(localStorage) !== 'undefined')
+   {
+    	accVar=accVarInit;
+	    datVar=datVarInit;
+			saveSto('all')
+	 	  infoTxt="Reset done";
+			
+			overlayP='Reset done';
+			
+		  openOverlay();
+		 
+			window.location.href = window.location.href.replace(location.search, '');	
+	 }	
+}
+
+function saveSto(varKey)
+{	
+ 	if(typeof(localStorage)!=='undefined')
+	{	 
+		 if(varKey == 'all' || varKey == accKey)
+		 {
+				localStorage[accKey]=accVar;
+	   }
+		 if(varKey == 'all' || varKey == datKey)
+		 {
+				localStorage[datKey]=datVar;
+	   }
+	   infoTxt = "Save "+varKey ;
+	}
+	else
+	{	
+	   infoTxt = "Save error";
+	} 
+}
+
+function display(show)
+{
+ 	   var appNode=document.getElementById('app');
+		 var sectNodes=document.getElementById('display').getElementsByTagName('section');
+		 var displayVar='none';
+		 if(show=='all')
+		 {
+		   var displayVar='block';
+		 }	
+		 appNode.style.display=displayVar; 
+		 for(var i=0;i<sectNodes.length;i++)
+     {
+ 			 sectNodes[i].style.display=displayVar;
+		 }	 
+		 if(document.getElementById(show)){document.getElementById(show).style.display='block';}
+}
+
+function loadAcc()
+{
+   var k='Email';
+	 email=accVar.split(k+db)[1].split(lb)[0];
+}
+
+
+function ckRes()
+{
+   //overlayP=reqRes;
+	 //openOverlay();
+	 
+	 //alert(reqRes);
+	
+	if(reqRes&&action=='db')
+  {
+		formAct();
+	}
+	else if(reqRes&&(action=='join'||action=='resend'))
+	{
+	   if(reqRes.indexOf(" link sent")>-1)
+		 {		 
+		   if(action=='resend')
+			 {
+			    overlayP='Activation Link Resent to '+email;
+       }
+			 else
+			 {			 
+			   overlayP='Activation Link Sent to '+email;
+		   }
+			 openOverlay();
+		 
+		   k='Active';
+	     v = reqRes;
+	     cv=accVar.split(k+db)[1].split(lb)[0];
+       accVar=accVar.replace(k+db+cv,k+db+v);
+			}
+			else
+			{
+			 overlayP='Activation Link sent previously to '+email;
+			 overlayP+='<br /><br /><span class="glowbut" onclick="javascript:resend()">Resend Activation Link</span>';
+ 
+		   openOverlay();
+			} 
+	}
+	saveSto(accKey);
+	disAccVar();
+}
+
+function resend()
+{
+     action='resend';
+		 reqUrl='db.php?e='+encodeURIComponent(email)+'&i='+encodeURIComponent(appId)+'&action='+action;
+		 
+		 overlayP='Processing...';
+	   openOverlay();
+     httpGet();
+}
+
+function formAct()
+{ 
+	if(reqRes.indexOf("Plus")>-1 || reqRes.indexOf("Free")>-1)
+	{
+	 reqRes=reqRes.replace(' link sent', '');
+	 
+	 var st=reqRes.split(' ')[1];
+		
+	 var months = ['Jan', 'Feb', 'Mar','Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+	 var dateSt=reqRes.substr(6, 2)+' '+months[Number(reqRes.substr(4, 2))-1]+' '+reqRes.substr(0, 4);
+		
+	 var activeSec = new Date(dateSt).getTime()+(60*60*24*1000);
+	 var currentSec = new Date().getTime();
+	 if(activeSec < currentSec)
+	 {
+	  st='Expired';	
+	 }
+	 active=dateSt +' '+st;
+	}
+	else
+	{
+	 active='No';
+	}
+	k='Active';
+	v = active;
+	cv=accVar.split(k+db)[1].split(lb)[0];
+  accVar=accVar.replace(k+db+cv,k+db+v);
+	
+	disAcc();
+}
+
+function disAcc()
+{
+	if(active!='No')
+	{
+	  if(active.indexOf('link')>-1)
+		{
+		  document.getElementById('accprompt').innerHTML='Activation Link sent by email, click the Activation Link to activate.';  
+		}		
+		else
+		{
+		 document.getElementById('free').style.display='none';
+		
+		 if(active.indexOf('Free')>-1)
+		 {
+			document.getElementById('accprompt').innerHTML='Free Activated, Activate Plus Now to maintain your data.';  
+		 }		
+		 else if(active.indexOf('Plus')>-1)
+		 {
+	    document.getElementById('plus').style.display='none';
+		  document.getElementById('accprompt').innerHTML='Plus Activated, thank you.'; 
+	   }
+		 else if(active.indexOf('Expired')>-1)
+		 {		
+		  document.getElementById('accprompt').innerHTML='Activation Expired, click the Activate Plus Now button to renew.';  
+		 }
+		}  
+	}	
+}
+
+function dec(c)
+{
+  edcode=Number(edc());
+  
+	var getjcode=jcode(c);
+	email=codeto(getjcode).toLowerCase();
+	
+	if(reEmail.test(email))
+  { 	  
+	     var k='Email';
+	     var v = email;
+	     var cv=accVar.split(k+db)[1].split(lb)[0];
+       accVar=accVar.replace(k+db+cv,k+db+v);
+			 
+			 saveSto(accKey);
+			 	 			
+			 infoTxt="Email: "+email;			 
+   }	
+	 else
+	 { 
+			infoTxt="Invalid";
+   }	  
+
+}
+
+function getAccVar()
+{	
+	if(typeof(localStorage) !== 'undefined' && localStorage[accKey])
+	{
+		  accVar=localStorage[accKey];
+	}
+  
+  var k='XMLHttpRequest';
+	var v =(typeof(XMLHttpRequest)!=='undefined')?'Yes':'No';
+	var cv=accVar.split(k+db)[1].split(lb)[0];
+  accVar=accVar.replace(k+db+cv,k+db+v);
+	
+	infoTxt=k+': '+v;
+	
+	k='Local Storage';
+	v =(typeof(localStorage)!=='undefined')?'Yes':'No';
+	cv=accVar.split(k+db)[1].split(lb)[0];
+ 	accVar=accVar.replace(k+db+cv,k+db+v);
+	
+	infoTxt=infoTxt+', '+k+': '+v;
+	
+	k='Cookies';
+	v =(navigator.cookieEnabled===true)?'Yes':'No';
+	cv=accVar.split(k+db)[1].split(lb)[0];
+ 	accVar=accVar.replace(k+db+cv,k+db+v);
+		
+	infoTxt=infoTxt+', '+k+': '+v;
+}
+
+function disAccVar()
+{	
+	
+	var accDiv=document.getElementById('accountdetails');
+	accDiv.innerHTML = '';
+	
+	var kvs = accVar.split(lb);
+	for(var i=0;i<kvs.length;i++)
+  {
+	    var k = kvs[i].split(db)[0];
+	    var v = kvs[i].split(db)[1];
+			
+			var pNode = document.createElement('p');
+			pNode.className='borderBot';
+			
+			var iNode = document.createElement("input");
+      iNode.setAttribute('type','text');
+			iNode.setAttribute('value',k);
+			iNode.className='bold inDisplay long';
+			iNode.readOnly = true;
+			pNode.appendChild(iNode);
+			 
+			var iNode = document.createElement("input");
+      iNode.setAttribute('type','text');
+			iNode.setAttribute('value',v);
+			iNode.className='inDisplay long';
+			iNode.readOnly = true;
+			pNode.appendChild(iNode);
+			accDiv.appendChild(pNode);
+  }		
+}
+
+function joinEmail()
+{ 
+ if(active=='No')
+ {
+  action='join';
+  email=document.getElementById('jemail').value;
+ 
+  var jemailtest=reEmail.test(email);
+  if(jemailtest)
+  {
+ 	   reqUrl='db.php?e='+encodeURIComponent(email)+'&i='+encodeURIComponent(appId)+'&a='+encodeURIComponent(a);
+		 overlayP='Processing...';
+	   openOverlay();
+     httpGet();	  
+  }
+  else
+  {
+    overlayP='Please provide a valid email address';
+	  openOverlay();
+  }
+ }
+ else
+ {
+   overlayP='Already Activated';
+	 openOverlay();
+ }
+}
+ 
+function getDb()
+{
+  //reqUrl="db.php?e="+email+"&i="+appId;
+	reqUrl='db.php?e='+encodeURIComponent(email)+'&i='+encodeURIComponent(appId)+'&a='+encodeURIComponent(a);
+	action='db'; 
+	httpGet();	 
+}
+
+
+function httpGet()
+{
+	if (window.XMLHttpRequest)
+  {
+	 http_request=new XMLHttpRequest();
+  }
+  else
+  {
+    infoTxt='Browser does not support data transfer, XMLHttpRequest.';
+  }
+  if(http_request)
+  {
+   try
+   {
+		http_request.onreadystatechange = httpChange;
+    http_request.open('GET',reqUrl, true);
+    http_request.send();
+   }
+   catch(err)
+   {
+    infoTxt="Unable to access data transfer.";
+   }
+ }
+}
+
+function httpPost()
+{
+	if (window.XMLHttpRequest)
+  {
+	 http_request=new XMLHttpRequest();
+  }
+  else
+  {
+   infoTxt='Browser does not support data transfer, XMLHttpRequest.';
+	}
+ 
+  if(http_request)
+  {
+   try
+   {
+		http_request.onreadystatechange = httpChange;
+    http_request.open('POST',reqUrl, true);
+    http_request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    http_request.send(postString);
+   }
+   catch(err)
+   {
+    infoTxt="Unable to access data transfer.";
+   }
+  }
+}
+    
+function httpChange()
+{
+ if (http_request.readyState == 4)
+ {
+	if (http_request.status == 200)
+  {
+   reqRes=http_request.responseText;
+	 ckRes();
+  }
+ }
+}
+
+function disCookie()
+{
+  var divNode = document.createElement("div");
+	divNode.id = "cookDis";
+	var cookHtml='<p>Cookies enable functionality and using this site confirms you agree to the use of cookies and have independantly assessed any application risk.</p>';
+	divNode.innerHTML=cookHtml;
+	
+	var bNode = document.createElement("button");
+	bNode.className="bluebut";
+	bNode.onclick = remNode;
+	tNode = document.createTextNode(" ok ");
+  bNode.appendChild(tNode);
+	divNode.appendChild(bNode);
+	
+	document.getElementById("display").appendChild(divNode);
+}
+
+function remNode()
+{
+  this.parentNode.parentNode.removeChild(this.parentNode);
+}
+
+function openOverlay()
+{	
+	closeOverlay();
+	
+	var fNode = document.createElement("div");
+	fNode.id="fade";
+	document.getElementsByTagName("body")[0].appendChild(fNode);
+	
+	var oNode = document.createElement("div");
+	oNode.id="overlay";
+	
+	pNode = document.createElement("p");
+	pNode.id="overlayP";
+	pNode.innerHTML=overlayP;
+	oNode.appendChild(pNode);
+	
+	var pNode = document.createElement("p");
+	var bNode = document.createElement("button");
+	bNode.className="bluebut";
+	bNode.onclick = closeOverlay;
+	var tNode = document.createTextNode("Close");
+  bNode.appendChild(tNode);
+	pNode.appendChild(bNode);
+	oNode.appendChild(pNode);
+	
+	document.getElementsByTagName("body")[0].appendChild(oNode);
+}
+
+function closeOverlay()
+{
+	if(document.getElementById("fade"))
+	{
+	  document.getElementById("fade").parentNode.removeChild(document.getElementById("fade"));
+	}
+	if(document.getElementById("overlay"))
+	{
+	  document.getElementById("overlay").parentNode.removeChild(document.getElementById("overlay"));
+	}
+}
+
+function ed()
+{
+		  edcode=Number(edc());
+			
+			var e = document.getElementById('ine').value.toUpperCase().replace(reClean,'');
+			var enc=e+'-'+validTo;			
+	    var getecode = tocode(enc);
+			var getdivcode=divcode(getecode);
+		  
+		  document.getElementById('enc').value = getdivcode;
+			document.getElementById('ind').value = getdivcode;
+			
+			var getjcode=jcode(getdivcode);
+			var getdcode=codeto(getjcode).toLowerCase();
+			document.getElementById('dec').value = getdcode;
+}	
+
+function edc()
+{
+   edsum=0;
+	 var edcode=tocode(appId.toUpperCase());
+	 for (var i=0;i < edcode.length;i++)
+   {
+      var ednum = Number(edcode.charAt(i));		
+			edsum=edsum+ednum;
+   }
+	 return edsum;
+}		
+
+function divcode(from)
+{
+  var divs=from.match(/.{1,6}/g);
+	  
+		code=Number(divs[0])*edcode;
+		for (var i=1;i < divs.length;i++)
+    {
+		 code=code+'-'+Number(divs[i])*edcode;
+		}
+	  return code;
+}
+
+function jcode(from)
+{
+    var jcode='';
+		var divs=from.split('-'); 
+		for (var i=0;i < divs.length;i++)
+    {
+		 var code=Number(divs[i])/edcode;
+		 jcode=jcode.concat(code);
+		}
+    return jcode;
+}
+   
+function tocode(from)
+{
+      var ecode='';
+			for (var i=0;i < from.length;i++)
+      {
+         var code = from.charCodeAt(i).toString(10);
+				 ecode=ecode.concat(code);
+			}
+			return ecode;
+}
+		
+function codeto(from)
+{
+			var dcode='';
+			for (var i=0; i<from.length; i=i+2)
+			{
+        var code = from.toString();
+        var code = String.fromCharCode(parseInt(code.substr(i, 2), 10));
+        dcode=dcode.concat(code);
+	     }
+	 		return dcode;		
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function dataVarDo()
+{	
+	
+	if(typeof(localStorage) !== 'undefined')
+  {
+    if(localStorage[datKey])
+		{
+		 datVar=localStorage[datKey];
+		}
+  }
+
+  var dataDiv=document.getElementById('data');
+	var kvs = datVar.split(lb);
+	for(var i=0;i<kvs.length;i++)
+  {
+	    var k = kvs[i].split(db)[0];
+	    var v = kvs[i].split(db)[1];
+			
+			var pNode = document.createElement('p');
+			pNode.className='xborderBot';
+			
+			var iNode = document.createElement("input");
+      iNode.setAttribute('type','text');
+			iNode.setAttribute('value',k);
+			iNode.onclick = clickSelect;
+			iNode.className='bold inNoBorder longer';
+			pNode.appendChild(iNode);
+			 
+		  iNode = document.createElement("input");
+			//<input type="range" min="1" max="10" step="0.5" id="mynumber">  
+			iNode.setAttribute('type','range');
+			//iNode.setAttribute('min','1');
+			//iNode.setAttribute('max','100');
+			//iNode.setAttribute('step','1');
+			iNode.placeholder=k;
+			
+      iNode.setAttribute('type','text');
+			iNode.setAttribute('value',v);
+			iNode.id = k;
+			iNode.onclick = clickSelect;
+			iNode.onchange=changeDo;
+			iNode.className='inNoBorder longer';
+			pNode.appendChild(iNode);
+			
+			
+			dataDiv.appendChild(pNode);
+  }		
+}
+
+function changeDo()
+{
+ //alert (this.id);
+ updateDo(this.id)
+ calcDo();
+}
+
+function updateDo(k)
+{
+	var v = document.getElementById(k).value;
+	//alert(v);
+	var cv=dataVar.split(k+db)[1].split(lb)[0];
+	//alert(cv);
+  dataVar=dataVar.replace(k+db+cv,k+db+v);
+	//alert(dataVar);
+	
+	if(typeof(localStorage) !== 'undefined')
+  {
+	 localStorage[appId+'dataVar']=dataVar;
+	}
+
+}
+
+
+function calcDo()
+{
+
+}
+
+function clickSelect()
+{
+ this.select();
+}
+
+
+
+function xckRes(reqRes)
+{ 
+ //alert('??'+reqRes)
+ // if(reqRes)
+ // {
+	 //active=
+	// }
+	 
+	// status = reqRes.split(",")[0];
+ ////  validTo = reqRes.split(",")[1];
+ //  times = reqRes.split(",")[2];
+   
+	 //infoNode.innerHTML='Your Account Code link was emailed.';
+//	 overlayP='An email with your Account Code link has been sent. Please follow the instructions in this email to activate your account. To retrieve a lost Account Code link go to <a href="/resend.html">Resend</a>.';
+	// document.getElementById('join').document.grtElementByTagNamr('p')[0].innerHTML=txt;
+	// document.getElementById('free').style.display='none';
+	 
+	 //overlayP=reqRes;	
+	 	 
+	// openOverlay();
+  //} 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			
+
+
+
+
+function cloneSectionHeader()
+{
+
+  var sourceNode = document.getElementsByTagName("header")[1];
+	
+	//alert(sourceNode.tagName);
+	
+  var cloneNode = sourceNode.cloneNode(true);
+	alert(cloneNode.id);
+	var sectionNodes = document.getElementsByTagName("section");
+  for(var i=0;i<sectionNodes.length;i++)
+	{
+    //if(sectionNodes[i].id != 'info'&& sectionNodes[i].id != 'applet')
+	  //{
+	    sectionNodes[i].appendChild(cloneNode);
+	  //}
+	}
+}	
+
+//function install()	
+//{
+//	window.addEventListener('beforeinstallprompt', event);
+ // alert(promptEvent);
+  //window.deferredPrompt = event;
+	 
+	//promptEvent = window.deferredPrompt;
+  //if(promptEvent)
+	//{
+    //  if(promptEvent.prompt())
+			//{
+//			 document.getElementsById("install").style.display='none';
+	//		}			
+    //  window.deferredPrompt = null;  
+ // }
+	
+//	alert(promptEvent);
+//}
+
+function helpHover()
+{
+ 	var allNodes = document.getElementsByTagName("*");
+  for(var i=0;i<allNodes.length;i++)
+	{
+    if(allNodes[i].getAttribute('data-info')||allNodes[i].getAttribute('title'))
+	  {
+	    allNodes[i].onmouseover=helpData;
+	  }
+	}
+}
+
+function helpData()
+{
+	if(this.getAttribute('data-info'))
+	{
+	 infoNode.innerHTML=this.getAttribute('data-info');
+	}
+	else if(this.getAttribute('title'))
+	{
+	  infoNode.innerHTML=this.getAttribute('title');
+	}	
+}
+
+
+function qClick()
+{
+ var qNodes=document.getElementById('qa').getElementsByTagName('div');
+ for(var i =0;i<qNodes.length;i++)
+ {
+ 	var pNodes=qNodes[i].getElementsByTagName('p');
+	pNodes[0].onclick=toggle;
+	pNodes[1].style.display='none';
+ }
+}
+
+function toggle(qid)
+{
+ if(qid.length>0)
+ {
+  var pNodes=document.getElementById(qid).parentNode.getElementsByTagName('p');
+ }
+ else
+ {
+  var pNodes=this.parentNode.getElementsByTagName('p');
+ }
+ 
+ if(pNodes[pNodes.length-1].style.display=='none')
+ {
+  pNodes[pNodes.length-1].style.display='block';
+ }
+ else
+ {
+  pNodes[pNodes.length-1].style.display='none';
+ }
+}
+
+function qaSearch()
+{
+ document.getElementById('qa').style.display='block';
+ var qaFind=document.getElementById('qasearch').value.toLowerCase();
+ var qaNodes=document.getElementById('qa').getElementsByTagName('div');
+ 
+ for(var i=0;i<qaNodes.length;i++)
+ {
+  var pNodes=qaNodes[i].getElementsByTagName('p');
+	var qaStr=pNodes[0].innerHTML.toLowerCase()+pNodes[1].innerHTML.toLowerCase();
+	var findPos=qaStr.indexOf(qaFind);
+	
+		if(findPos>-1)
+		{  
+			pNodes[0].parentNode.style.display='block';
+			pNodes[0].style.display='block';
+			pNodes[1].style.display='block';
+		}
+		else
+		{
+		  pNodes[0].parentNode.style.display='none';
+		}
+ }	
+}
+
+function qaBrowse()
+{
+ 
+ document.getElementById('qa').style.display='block';
+ var qaNodes=document.getElementById('qa').getElementsByTagName('div');
+ 
+ for(var i=0;i<qaNodes.length;i++)
+ {
+ 			var pNodes=qaNodes[i].getElementsByTagName('p');
+	    pNodes[0].parentNode.style.display='block';
+			pNodes[0].style.display='block';
+			if(i==0)
+			{
+			 var curDis=pNodes[1].style.display;
+			}
+			if(curDis=='block')
+			{
+			 pNodes[1].style.display='none';
+			}
+			else
+			{
+			 pNodes[1].style.display='block';
+			} 
+ }	
+}
+
+function shClick()
+{
+  document.getElementById('qa').style.display='none';
+	
+	var imgNodes=document.getElementsByTagName('img');
+	
+	for(var i=0;i<imgNodes.length;i++)
+  {
+ 		if(imgNodes[i].className=='sh')
+		{
+		  imgNodes[i].onclick=sh;
+		}
+	}   
+}
+
+function sh()
+{
+  var togNode=this.parentNode.nextElementSibling;
+	if(togNode.style.display=='none')
+  {
+     togNode.style.display='block';
+		 this.src="./hide.png"
+  }
+  else
+  {
+    togNode.style.display='none';
+		this.src="./show.png"
+  }
+}
+
+function showqid(qid)
+{
+   document.getElementById('qa').style.display='block';
+   document.getElementById(qid).nextElementSibling.style.display='block';
+}
+
+if (navigator.serviceWorker &&  navigator.serviceWorker.register('./sw.js'))
+{
+    //alert('sw in');
+}
+	
+function range()
+{
+  var adj=document.getElementById('r');
+	
+	adj.previousSibling.value=adj.previousSibling.value*adj.value/100;
+	
+}
+
+
+
+</script>
+
+<title>Cashflow Business App</title>
+
+<!-- <link rel="stylesheet" type="text/css" href="style.css" />
+ -->
+<style>
+
+body{margin: auto; max-width: 900px; padding:2em; background-color: rgba(255,255,255,1); color:rgba(051,102,102,1); font-family:arial,helvetica,sans-serif; font-size: 100%; line-height:2em;}
+
+header{color:rgba(255,102,0,1); font-size:2em;line-height:2em;}
+header h1 {cursor: pointer;opacity:.7;font-size:1em;display:inline;}
+header h1 span {font-weight: normal;vertical-align:middle;}
+header h1 img {height:1em; width:1em;vertical-align:text-top;}
+header h1:hover{opacity:1;}
+
+header > span {float: right;}
+header > span > span img {cursor: pointer;opacity:.7; margin-left:.5em; height:1em; width:1em;vertical-align:middle;}
+header  > span > span img:hover{opacity:1;}
+
+h2 {text-align:center;line-height:2em; font-size:2em; font-weight: normal; color:rgba(255,102,0,1);}
+h2 > img {height:1em; width:1em; vertical-align:middle;}
+h2 > span {font-size:.75em;vertical-align:middle;}
+
+.link{background-color:rgba(255,255,255,1); cursor: pointer; color:rgba(0,0,255,1); opacity:.7;}
+.link:hover {text-decoration: none;opacity:1;}
+.link img {height:1em; width:1em; opacity:.7; vertical-align:text-top;}
+
+.sh {height:1.5em; width:1.5em; opacity:.4;vertical-align:middle;}
+.sh:hover {opacity:.7;}
+
+
+.floatleft{float: left;}
+.floatright{float: right;}
+.textleft{text-align:left;}
+.textcenter{text-align:center;}
+.textright{text-align:right;}
+
+.shade{background-color:rgba(200,200,200,1);}
+
+.fssmall{font-size:smaller;}
+.bold{font-weight: bold;}
+.boldBlack{font-weight: bold; color:#000000}
+
+.lhnormal{line-height: normal;}
+
+.gold{color:rgba(255,153,0,1);}
+.glow{color:rgba(255,204,0,1);}
+
+.hidden{display:none;}
+
+#info{color:#997A00; text-align:right; cursor: help; font-size:smaller; line-height:1.2;padding:0px; margin:0px;}
+
+#display {height: auto; text-align:justify;}
+
+#cookDis{padding:.2em; margin:0em;font-size:smaller; background-color: rgba(0,0,255,.3); color:rgba(0,0,0,1); text-align:center; line-height:1;}
+#cookDis button{padding:.5em;}
+
+img {border: 0px; margin: 0px; padding:0px; background-color: rgba(255,255,255,1);}
+
+.but{cursor: pointer; font-style: italic; font-weight: 700; color:rgba(0,0,255,1); background-color:#ffcc00; opacity:.8; border-width: 0px; border-radius: .5em; padding:.3em; margin:.2em;line-height:1.2;}
+
+.centbut{vertical-align:middle; margin-top:auto; margin-bottom:auto;}
+
+.glowbut{cursor: pointer; font-style: italic; font-weight: 700;color:rgba(0,0,255,1); background-color:#ffcc00; opacity:.7; border-width: 0px; border-radius: .5em; padding:.3em; margin:.2em;font-size:1em;}
+.glowbut:hover {opacity:1;box-shadow: 0px 0px .2em .1em #ffcc00;}
+
+.bluebut{cursor: pointer; font-style: italic; font-weight: 700; color: #ffffff; background-color:#0000ff; opacity:.7; border-width: 0px; border-radius: .5em; padding:.3em; margin:.2em;}
+.bluebut:hover {opacity:1; box-shadow: 0px 0px .2em .1em #0000ff;}
+
+a:link{text-decoration: none; color:rgba(0,0,255,1); opacity:.7;}
+a:hover {text-decoration: none;opacity:1;}
+a:visited {color:rgba(0,0,255,1);}
+
+#qa{line-height:1.2;}
+
+.q{margin:0em; margin-left:1em;cursor: pointer;}
+.q span:first-child{font-weight: bold;color:#cc9933;}
+.a{margin:0em;margin-bottom:1em;font-size:.9em}
+
+footer {font-size:2em;line-height:2em;text-align:right;cursor: pointer;}
+footer span:first-child{font-size:.4em;vertical-align:middle;}
+footer img{ text-decoration: none; opacity:0.7; height:1em; width:1em; margin-left:.5em; vertical-align:middle;}
+footer img:hover {opacity:1.0;}
+
+#valid{text-align:center;font-size:smaller; line-height:1.2;}
+
+x.inDisplay{border-style: none; outline: none;}
+x.border{border-color: rgba(240,240,240,1);border-style:solid;border-width:1px; border-radius:1em;padding:1em;margin:1em;}
+x.borderBot{border-color: rgba(240,240,240,1);border-bottom-style: solid;border-bottom-width:1px;}
+
+@media all and (max-width:600px)
+{
+#h1text {display:none;}
+ h2 {display:none;}
+#display {line-height:1.2;}
+footerx{display:none;}
+}
+
+#fade {position: fixed; left: 0%;top: 0%; background-color: #000000; opacity:0.7; width: 100%;height: 100%; margin:0px; padding:0px; z-index: 199;}
+#overlay {position: fixed; left: 10%; top: 10%; width: 80%; height: 80%; margin:auto; z-index:200; background-color: #ffffff;color:#000000; border-width:0px; border-radius:1em;}
+#overlay p {padding:1em; margin:auto; vertical-align:middle; text-align:center;}
+
+#app xinput{border-style: none;outline: none;text-align:right;margin:0em;padding:0em;}
+#data {font-family:consolas,courier,monospace; font-size:1em;line-height:1em;}
+#data p :nth-child(1){text-align:right;width:7em;color:red;}
+#data input+input{text-align:right;width:5em;color:blue;}
+#data input+input+span{cursor: pointer; font-weight: 700;color:red;}
+#data input+input+span+input{cursor: pointer; font-weight: 700;width:2em;color:blue;text-align:center;}
+#data input+input+span+input+span{cursor: pointer; font-weight: 700;width:5em;color:green; js:alert('oo');}
+
+#data p xspan{cursor: pointer; font-weight: 700; color: #ff0000;}
+#data xp:nth-child(5) {text-align:right;width:5em;color:green;}
+
+
+#data xinput+input+span{color:blue;}
+
+
+#xapp input{width:auto;}
+
+</style>
+
+</head>
+
+<body onload="javascript:init();">
+
+<!-- 
+<div id="install" class="hidden textcenter"><button type="button" xonclick="javascript:install()">Install</button></div>
+	 -->	
+<header>   
+		 <h1 onclick="javascript:display('app')" data-info='run Cashflow Business'><img src="./app64.svg" alt="app"><span id="h1text">Cashflow Business</span></h1>
+		<span>
+		 <span onclick="javascript:display('help')" data-info='Start and Help'><img src="./help.svg" alt="Help"></span>
+		 <span onclick="javascript:display('account')" data-info='Account details'><img src="./account.svg" alt="Account"></span>
+	  </span>
+</header>
+
+<div id="info" onclick="javascript:display('help')"></div>
+
+<div id="display" itemscope itemtype="http://schema.org/SoftwareApplication">
+
+ <div id='app'>
+  	
+  <div id='data' class='center'>
+
+	
+	<p><input type="text" value="Revenue"><input type="number" value="100"><input id='r' onchange='range()' type="range" min="-100" max="100">
+</p>
+
+	<p><input type="text" value="Revenue"><input type="text" value="100"><span onlick='dec()'>-</span><input type="text" placeholder="Revenue" value="100" id="Revenue" class=""><span onclick='inc()'>+</span><input type="range" min="-10" max="10">
+</p>
+	
+  </div>
+ 
+ </div>
+ 
+ 
+ <section id='help'>
+ 
+  <h2><img src="./help.svg" alt="Help"><span>Welcome</span></h2>
+  
+  <p itemprop="description"><span onclick="javascript:display('app')" class='link' data-info='run Cashflow Business'>Cashflow Business</span> applies basic user input data to forecast the impact of revenue income variations on cashflow surplus. It is a streamlined user friendly web based application. The top left <span onclick="javascript:display('app')" class='link' data-info='run Cashflow app'><img src="./app64.svg" alt="app"> icon</span> runs the app. You can run the app now for free but to save data please <span class='link' onclick="javascript:display('account')" >activate your Account <img src="./account.svg" alt="account"></span>, for more information see <a href="#q1" onclick='javascript:showqid("q1")'>Start</a>.</p>
+ 
+ 	<p><img class='sh' title='click to toggle' onclick='javascript:sh()' src="./show.svg" alt="show hide"> Questions and Answers help <input type="search" id="qasearch" value="" onchange='javascript:qaSearch()' placeholder='Search for' /> <span class='link' onclick='javascript:qaSearch()'><img src="./search.png" alt="Search">Search</span>.</p>
+	
+  <div id='qa'>
+	<div>
+ 	<p class='q' id='q1'><span title='click to toggle'>Q: </span>How do I get Started?</p>
+	<p class='a'><span onclick="javascript:display('app')" class='link' data-info='run Cashflow app'><img src="./app64.svg" alt="app">icon</span> top left opens the app and provides app instructions. To save data <span class='link' onclick="javascript:display('account')" >activate your Account<img src="./account.png" alt="account"></span>. Activate Plus provides data saving, back up and priority support, Activate Free provides time limited data saving, when a Free Activation expires all data is cleared. You can upgrade to Plus at any time. When you Activate an Activation Link is emailed, click the Activation Link in the email to Activate. Account details are displayed in <span class='link' onclick="javascript:display('account')" >Account<img src="./account.png" alt="account"></span>.</p> 
+  </div>
+	
+	<div>
+ 	<p class='q'><span>Q: </span> </p>
+	<p class='a'></p> 
+  </div>
+	
+	
+	</div>
+ 
+ </section>
+   
+ <section id='account'>
+	
+	<h2><img src="./account.svg" alt="Account"><span>Account</span></h2>
+  
+	<div id='join' class="lhnormal">
+	
+	 <div><p id='accprompt'>Activate your account to enable data saving.</p></div>
+	 
+	 <div id='plus'>
+	  <p class="centbut"><a href="" class='glowbut' id="buy" >Activate Plus Now</a> only $4.99 per month.</p>
+		<p class="fssmall">Full Plus Activation Code immediatly sent by email. Payments are managed via <a href="http://www.paypal.com/">PayPal</a> the leader in secure internet transaction processing.</p> 
+	 </div>
+	 
+	 <div id='free'>
+	 <p><b>or</b></p>
+	   <p class="centbut"><button onclick="javascript:joinEmail()" class='glowbut'>Activate Free</button> <input type="email" placeholder='Email Address' id='jemail'/></p>
+		 <p class="fssmall">Introductory Free Activation Code immediatly sent by email.</p> 
+	 </div>
+	
+	</div>
+	
+	<p class="bold">Account Details</p>
+  <div id="accountdetails"></div>
+	  
+ </section> 
+ 
+ <section id='privacy'>
+	 <h2><img src="./privacy.png" alt="Privacy"><span>Privacy</span></h2>  
+   <p>All application data is stored on your local device and is not accessible to third parties. <span class='link' onclick="javascript:resetSto()" >Reset</span> clears locally stored data. Only user verification and interaction data is remotely stored. Data is confidential and is used solely for the delivery of services.</p>
+ </section>
+	 
+	 
+ <footer>
+  	  <span>&copy; <a href="../" target='bizpep' data-info="developer web site" itemprop="author" itemscope itemtype="http://schema.org/Person">bizpep</a></span>
+		  <a href="../contactus.html" target='bizpep' data-info="contact developer"><img src="./contact.svg" alt="Contact"></a>
+		  <span onclick="javascript:display('privacy')" data-info='Privacy and data policy'><img src="./privacy.svg" alt="Privacy"></span>	
+ </footer>
+ 
+	  
+		  <div id="valid" >
+		  <a href="http://validator.w3.org/check?uri=referer" title="Valid HTML5">Valid HTML5</a> 
+			<a href="http://jigsaw.w3.org/css-validator/check/referer" title="Valid CSS">Valid CSS</a>
+     </div>
+		 
+</div>
+
+</body>
+</html>

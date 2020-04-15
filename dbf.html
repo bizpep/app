@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="" />
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+
+<script>
+
+var http_request;
+var reqRes='';
+var bodyNode;
+var getFile;
+
+function init()
+{
+	bodyNode=document.getElementsByTagName("Body")[0];
+	
+	getFile='dbf.xml'
+	httpGet(getFile);
+	
+	//httpGet("dbp.xml");
+
+}
+
+function httpGet()
+{
+	if (window.XMLHttpRequest)
+  {
+	 http_request = new XMLHttpRequest();
+	 http_request.onreadystatechange = httpChange;
+   http_request.open('GET',getFile, true);
+   http_request.send(null);
+	}
+	else
+	{
+   alert("XMLHttpRequest error");
+  }
+}
+
+function httpChange()
+{
+ if (http_request.readyState == 4)
+ {
+  if (http_request.status == 200)
+  {
+   if(getFile.indexOf('xml')>-1)
+	 {
+	   reqRes=http_request.responseXML;
+		 proXml()
+	 }
+	 else
+	 {
+	   reqRes=http_request.responseText;
+		 alert(reqRes);
+		 proTxt();
+	 }
+  }
+ }
+}
+
+function proXml()
+{
+ 	bodyNode.appendChild(reqRes.firstChild);
+	
+	var accountsNode=document.getElementsByTagName("Accounts")[0];
+  
+	var dataNodes=document.getElementsByTagName("Account")[0].childNodes;
+  
+	var headerEl=document.createElement('header');
+	
+	for(var i=0;i<dataNodes.length;i++)
+	{
+		 var tag=dataNodes[i].tagName;
+		 newEl=document.createElement(tag);
+		 newTxt=document.createTextNode(tag);
+		 newEl.appendChild(newTxt);
+	   headerEl.appendChild(newEl);
+	}	
+	accountsNode.insertBefore(headerEl,accountsNode.childNodes[0]);
+		
+	var accountNodes=document.getElementsByTagName("Account");
+	
+	for(var i=0;i<accountNodes.length;i++)
+	{
+	 
+	  accountNodes[i].childNodes[0].addEventListener("click", eDel); 
+	//  var dataNodes=accountNodes[i].childNodes;
+		//for(var j=0;j<dataNodes.length;j++)
+	 /// {
+		//	 dataNodes[j].addEventListener("click", eDel);   
+		//}
+	}
+}
+
+function proTxt()
+{ 
+   //alert(reqRes);
+	 
+	// if(confirm('Reload?'))
+	// {
+	   window.location.reload();
+	// }	 
+}
+
+function eDel()
+{
+ //alert('Delete '+this.tagName+' '+this.innerHTML);
+ 
+ if(this.tagName.indexOf('Email')>-1)
+ {
+   getFile='db.php?e='+this.innerHTML+'&action=delete';
+	 httpGet();
+ }
+}
+
+</script>
+
+<style>
+
+Accounts {display:table; padding:0em; margin:0em; width:100%;line-height:2;}
+
+header {display:table-header-group; font-weight:700;background-color: rgba(204,204,255,.3)}
+header * {display:table-cell}
+
+Account {display:table-row;}
+Account * {display:table-cell}
+Account:nth-child(odd) {background-color: rgba(204,204,255,.1)}
+
+</style>
+
+</head>
+<body onload="init()">
+
+<div><a href="./dbf.html">dbf</a> <a href="./dbp.html">dbp</a></div>
+
+
+
+</body>
+</html>
