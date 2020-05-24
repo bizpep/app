@@ -16,8 +16,9 @@
 <meta name="description" content="" />
 <meta name="keywords" content="" />
 
-<script>
+<script src = "https://www.gstatic.com/charts/loader.js"></script>
 
+<script>
 //window.onerror=errorSupress;
 function errorSupress()
 {
@@ -26,11 +27,12 @@ function errorSupress()
 
 var appId="cfba";
 var appName="Cashflow Business";
-var build="20200410";
-var amount="4.99";
+var build="20200524.1";
+var amount="2.99";
 
 var db='~';
-var lb='|';
+var ib='|';
+var gb='^';
 
 var email="No";
 var active='No';
@@ -38,8 +40,8 @@ var active='No';
 var edsum=0;
 edc();
 
-var accVarInit="Email"+db+email+lb+"Active"+db+active+lb+"XMLHttpRequest"+db+"-"+lb+"Local Storage"+db+"-"+lb+"Cookies"+db+"-"+lb+"Build"+db+build;
-var datVarInit="Revenue"+db+"100"+lb+"Fixed Costs"+db+"50"+lb+"Variable Costs"+db+"30";
+var accVarInit="Email"+db+email+ib+"Active"+db+active+ib+"XMLHttpRequest"+db+"-"+ib+"Local Storage"+db+"-"+ib+"Cookies"+db+"-"+ib+"Build"+db+build;
+var datVarInit="Revenue"+db+"100"+ib+"item"+db+"100"+gb+"Variable Costs"+db+"30"+gb+"Fixed Costs"+db+"50";
 
 var accVar=accVarInit;
 var datVar=datVarInit;
@@ -65,11 +67,16 @@ var reqUrl='db.php';
  
 if(document.cookie)
 {
-	a=document.cookie.split("; a=")[1].split(";")[0];
+	//a=document.cookie.split("; a=")[1].split(";")[0];
 }
 
 var ppurl="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick-subscriptions&business=H9A2BCWL7B7A4&no_shipping=1&no_note=1&currency_code=USD&return=http://bizpep.com/return.html&rm=2&cancel_return=http://bizpep.com/cancel.html&item_name="+appName+"&a3="+amount+"&p3=1&t3=M&src=1&sra=1&custom="+a;
  
+//google.charts.load('current', {'packages':['line']});
+google.charts.load('current',{'packages':['corechart', 'table']});
+google.charts.setOnLoadCallback(drawChart);
+
+	 
 function init()
 {
   infoNode=document.getElementById('info');
@@ -78,11 +85,15 @@ function init()
 	
 	loadGet();
 	loadAcc();
-  getAccVar();
+  //getAccVar();
 	
-	getDb();
+	//getDb();
+	
+	buildData();
 	
 	
+	 	
+	result();
 	//dataVarDo();
 	
 	disCookie();
@@ -93,11 +104,21 @@ function init()
 	qClick();
 	shClick()
 	
-	infoTxt='Click ? for help, mouseover displays quick hints here';	
+	disBuild();
+	
+	infoTxt='? for help';	
 	infoNode.innerHTML=infoTxt;
 	
 	display('help');
-  display('app');
+  //display('app');
+	
+	
+	
+	if ('serviceWorker' in navigator) 
+	{
+     navigator.serviceWorker.register('./sw.js');
+  }
+	
 }
 
 function initSto()
@@ -218,7 +239,7 @@ function display(show)
 function loadAcc()
 {
    var k='Email';
-	 email=accVar.split(k+db)[1].split(lb)[0];
+	 email=accVar.split(k+db)[1].split(ib)[0];
 }
 
 
@@ -249,7 +270,7 @@ function ckRes()
 		 
 		   k='Active';
 	     v = reqRes;
-	     cv=accVar.split(k+db)[1].split(lb)[0];
+	     cv=accVar.split(k+db)[1].split(ib)[0];
        accVar=accVar.replace(k+db+cv,k+db+v);
 			}
 			else
@@ -299,7 +320,7 @@ function formAct()
 	}
 	k='Active';
 	v = active;
-	cv=accVar.split(k+db)[1].split(lb)[0];
+	cv=accVar.split(k+db)[1].split(ib)[0];
   accVar=accVar.replace(k+db+cv,k+db+v);
 	
 	disAcc();
@@ -345,7 +366,7 @@ function dec(c)
   { 	  
 	     var k='Email';
 	     var v = email;
-	     var cv=accVar.split(k+db)[1].split(lb)[0];
+	     var cv=accVar.split(k+db)[1].split(ib)[0];
        accVar=accVar.replace(k+db+cv,k+db+v);
 			 
 			 saveSto(accKey);
@@ -368,21 +389,21 @@ function getAccVar()
   
   var k='XMLHttpRequest';
 	var v =(typeof(XMLHttpRequest)!=='undefined')?'Yes':'No';
-	var cv=accVar.split(k+db)[1].split(lb)[0];
+	var cv=accVar.split(k+db)[1].split(ib)[0];
   accVar=accVar.replace(k+db+cv,k+db+v);
 	
 	infoTxt=k+': '+v;
 	
 	k='Local Storage';
 	v =(typeof(localStorage)!=='undefined')?'Yes':'No';
-	cv=accVar.split(k+db)[1].split(lb)[0];
+	cv=accVar.split(k+db)[1].split(ib)[0];
  	accVar=accVar.replace(k+db+cv,k+db+v);
 	
 	infoTxt=infoTxt+', '+k+': '+v;
 	
 	k='Cookies';
 	v =(navigator.cookieEnabled===true)?'Yes':'No';
-	cv=accVar.split(k+db)[1].split(lb)[0];
+	cv=accVar.split(k+db)[1].split(ib)[0];
  	accVar=accVar.replace(k+db+cv,k+db+v);
 		
 	infoTxt=infoTxt+', '+k+': '+v;
@@ -394,7 +415,7 @@ function disAccVar()
 	var accDiv=document.getElementById('accountdetails');
 	accDiv.innerHTML = '';
 	
-	var kvs = accVar.split(lb);
+	var kvs = accVar.split(ib);
 	for(var i=0;i<kvs.length;i++)
   {
 	    var k = kvs[i].split(db)[0];
@@ -525,7 +546,7 @@ function disCookie()
 {
   var divNode = document.createElement("div");
 	divNode.id = "cookDis";
-	var cookHtml='<p>Cookies enable functionality and using this site confirms you agree to the use of cookies and have independantly assessed any application risk.</p>';
+	var cookHtml='<p>Cookies enable functionality and site use confirms you agree to data storage and accept any application risk.</p>';
 	divNode.innerHTML=cookHtml;
 	
 	var bNode = document.createElement("button");
@@ -535,6 +556,15 @@ function disCookie()
   bNode.appendChild(tNode);
 	divNode.appendChild(bNode);
 	
+	document.getElementById("display").appendChild(divNode);
+}
+
+
+function disBuild()
+{
+  var divNode = document.createElement("div");
+	var cookHtml='Cookies enable functionality and site use confirms you agree to data storage and accept any application risk.';
+	divNode.innerHTML='build '+build;
 	document.getElementById("display").appendChild(divNode);
 }
 
@@ -681,7 +711,7 @@ function codeto(from)
 
 
 
-function dataVarDo()
+function xdataVarDo()
 {	
 	
 	if(typeof(localStorage) !== 'undefined')
@@ -693,7 +723,7 @@ function dataVarDo()
   }
 
   var dataDiv=document.getElementById('data');
-	var kvs = datVar.split(lb);
+	var kvs = datVar.split(ib);
 	for(var i=0;i<kvs.length;i++)
   {
 	    var k = kvs[i].split(db)[0];
@@ -705,7 +735,7 @@ function dataVarDo()
 			var iNode = document.createElement("input");
       iNode.setAttribute('type','text');
 			iNode.setAttribute('value',k);
-			iNode.onclick = clickSelect;
+			iNode.onclick = editSave;
 			iNode.className='bold inNoBorder longer';
 			pNode.appendChild(iNode);
 			 
@@ -720,7 +750,7 @@ function dataVarDo()
       iNode.setAttribute('type','text');
 			iNode.setAttribute('value',v);
 			iNode.id = k;
-			iNode.onclick = clickSelect;
+			iNode.onclick = editSave;
 			iNode.onchange=changeDo;
 			iNode.className='inNoBorder longer';
 			pNode.appendChild(iNode);
@@ -730,18 +760,18 @@ function dataVarDo()
   }		
 }
 
-function changeDo()
+function xchangeDo()
 {
  //alert (this.id);
  updateDo(this.id)
  calcDo();
 }
 
-function updateDo(k)
+function xupdateDo(k)
 {
 	var v = document.getElementById(k).value;
 	//alert(v);
-	var cv=dataVar.split(k+db)[1].split(lb)[0];
+	var cv=dataVar.split(k+db)[1].split(ib)[0];
 	//alert(cv);
   dataVar=dataVar.replace(k+db+cv,k+db+v);
 	//alert(dataVar);
@@ -754,40 +784,18 @@ function updateDo(k)
 }
 
 
-function calcDo()
+function xcalcDo()
 {
 
 }
 
-function clickSelect()
+function editSave()
 {
  this.select();
 }
 
 
 
-function xckRes(reqRes)
-{ 
- //alert('??'+reqRes)
- // if(reqRes)
- // {
-	 //active=
-	// }
-	 
-	// status = reqRes.split(",")[0];
- ////  validTo = reqRes.split(",")[1];
- //  times = reqRes.split(",")[2];
-   
-	 //infoNode.innerHTML='Your Account Code link was emailed.';
-//	 overlayP='An email with your Account Code link has been sent. Please follow the instructions in this email to activate your account. To retrieve a lost Account Code link go to <a href="/resend.html">Resend</a>.';
-	// document.getElementById('join').document.grtElementByTagNamr('p')[0].innerHTML=txt;
-	// document.getElementById('free').style.display='none';
-	 
-	 //overlayP=reqRes;	
-	 	 
-	// openOverlay();
-  //} 
-}
 
 
 
@@ -808,26 +816,6 @@ function xckRes(reqRes)
 			
 
 
-
-
-function cloneSectionHeader()
-{
-
-  var sourceNode = document.getElementsByTagName("header")[1];
-	
-	//alert(sourceNode.tagName);
-	
-  var cloneNode = sourceNode.cloneNode(true);
-	alert(cloneNode.id);
-	var sectionNodes = document.getElementsByTagName("section");
-  for(var i=0;i<sectionNodes.length;i++)
-	{
-    //if(sectionNodes[i].id != 'info'&& sectionNodes[i].id != 'applet')
-	  //{
-	    sectionNodes[i].appendChild(cloneNode);
-	  //}
-	}
-}	
 
 //function install()	
 //{
@@ -977,12 +965,12 @@ function sh()
 	if(togNode.style.display=='none')
   {
      togNode.style.display='block';
-		 this.src="./hide.png"
+		 this.src="./hide.svg"
   }
   else
   {
     togNode.style.display='none';
-		this.src="./show.png"
+		this.src="./show.svg"
   }
 }
 
@@ -992,20 +980,615 @@ function showqid(qid)
    document.getElementById(qid).nextElementSibling.style.display='block';
 }
 
-if (navigator.serviceWorker &&  navigator.serviceWorker.register('./sw.js'))
+function shg()
 {
+  itemNode =this.parentNode.parentNode;
+	gNode=itemNode.parentNode;
+	
+	//var shgNode=this.parentNode.parentNode;
+  if(this.src.indexOf("show.svg")>-1)
+	{
+	 var action='show';
+	 this.src='./hide.svg';
+	 this.setAttribute('data-info','click to hide items');
+	}
+	else
+	{
+	 var action='hide';
+	 this.src='./show.svg';
+	 this.setAttribute('data-info','click to show items');
+	}
+		 
+	for(var i=1;i<gNode.children.length;i++)
+  {
+ 		var shNode=gNode.children[i];
+		
+		if(action=='show')
+		{
+		  shNode.style.display='block';
+		}
+		else
+		{
+		  shNode.style.display='none';
+		}	
+	}   
+}
+
+//if (navigator.serviceWorker &&  navigator.serviceWorker.register('./sw.js'))
+//{
     //alert('sw in');
-}
-	
-function range()
+//}
+
+var gNode;
+var xiNode;
+var dataDiv;
+
+function buildData()
 {
-  var adj=document.getElementById('r');
+ if(typeof(localStorage) !== 'undefined')
+  {
+    if(localStorage[datKey])
+		{
+		 datVar=localStorage[datKey];
+		}
+  }
+  var result='';
+  dataDiv=document.getElementById('data');
 	
-	adj.previousSibling.value=adj.previousSibling.value*adj.value/100;
+	var gs = datVar.split(gb);
+	for(var g=0;g<gs.length;g++)
+  {	
+		gNode = document.createElement('div');
+	  var gtot=0;
+		
+	  var kvs = gs[g].split(ib);
+		//alert(kvs.length);
+	  for(var i=0;i<kvs.length;i++)
+    {
+	    var k = kvs[i].split(db)[0];
+	    var v = kvs[i].split(db)[1];
+			//alert(k+' is '+v);
+			iNode = document.createElement('div');
+		
+		
+		  //gDiv iDiv 
+		  //labIn totIn 
+		  //incDiv >>but in span but
+			//arDiv >>arImg shImg 
+			var dNode = document.createElement("input");
+      dNode.setAttribute('type','text');
+			dNode.setAttribute('value',k);
+			dNode.onclick = editSave;
+			dNode.onchange=saveData;
+			dNode.setAttribute('data-info','edit and save');
+			iNode.appendChild(dNode);
+			
+			dNode = document.createElement("input");
+      dNode.setAttribute('type','number');
+			
+			if(kvs.length>1)
+			{
+			  if(i==0)
+				{
+				  dNode.style.backgroundColor="#ffffff";
+					dNode.readOnly = true;
+					dNode.style.fontWeight = "700";
+					dNode.setAttribute('data-info',k+ ' total');
+			
+					dNode.style.cursor='none';
+				  dNode.setAttribute('value',v);
+					dNode.setAttribute('data-base',v);
+				}
+				else
+				{
+				  gtot+=parseInt(v);
+					if(i==kvs.length-1)
+					{
+					  gNode.firstChild.childNodes[1].value=gtot;
+						gNode.firstChild.childNodes[1].setAttribute('data-base',gtot);
+					}
+					dNode.setAttribute('value',v);
+			    dNode.setAttribute('data-base',v);
+				  dNode.onclick = editSave;
+					dNode.setAttribute('data-info','edit and save');
+			    dNode.onchange=base;
+				}
+			}
+			else
+			{
+			  dNode.setAttribute('value',v);
+			  dNode.setAttribute('data-base',v);
+				dNode.onclick = editSave;
+				dNode.setAttribute('data-info','edit and save');
+			  dNode.onchange=base;		
+			}
+			iNode.appendChild(dNode);
+			
+			if(g==0)
+			{
+			  result+=parseInt(v);
+			}
+			else
+			{
+			  result-=parseInt(v);
+			}
+			
+			//inc
+			
+			//Inc
+			var divNode = document.createElement("div");
+			var bNode = document.createElement("button");
+			bNode.onmouseover=incStart;
+			bNode.onmouseout=incStop;
+			//bNode.setAttribute('data-info','decrease adjust%');
+			bNode.value='-';
+			var tNode = document.createTextNode('-');
+      bNode.appendChild(tNode);
+			divNode.appendChild(bNode);
+			
+			var inNode = document.createElement("input");
+			inNode.setAttribute('value',0);
+			inNode.onchange=change;
+			inNode.setAttribute('data-info','- + edit adjust%, dbl tap to reset');
+			inNode.ondblclick = zero;
+			divNode.appendChild(inNode);
+			
+	    bNode = document.createElement("button");
+			bNode.onmouseover=incStart;
+			bNode.onmouseout=incStop;
+			//bNode.setAttribute('data-info','increase adjust%');
+			bNode.value='+';
+			var tNode = document.createTextNode('+');
+      bNode.appendChild(tNode);
+			divNode.appendChild(bNode);
+			
+			var sNode = document.createElement("span");
+	    var tNode = document.createTextNode('%');
+      sNode.appendChild(tNode);
+			//if(i>0){dNode.style.visibility="hidden";}
+	    divNode.appendChild(sNode);
+			
+			iNode.appendChild(divNode);
+					
+			var divNode = document.createElement("div");
+					
+			dNode = document.createElement('img');
+	    dNode.setAttribute('src', './add.svg');
+	    dNode.setAttribute('alt','add');
+	    dNode.onclick = add;
+			dNode.setAttribute('data-info','add item');
+			if(i>0)
+			{
+			 dNode.setAttribute('src', './remove.svg');
+			 dNode.setAttribute('alt','remove');
+			 dNode.onclick = remove;
+	     dNode.setAttribute('data-info','remove item')
+			}
+			divNode.appendChild(dNode);
+			
+			if(i==0)
+			{
+			  dNode = document.createElement('img');
+	      dNode.setAttribute('src', './hide.svg');
+	      dNode.setAttribute('alt','hide');
+	      dNode.onclick = shg;
+			  dNode.setAttribute('data-info','hide items');
+			  divNode.appendChild(dNode);
+			}
+			iNode.appendChild(divNode);
+			gNode.appendChild(iNode);
+		}	
+		dataDiv.appendChild(gNode);
+  }		  
+	gNode = document.createElement('div');
+	iNode = document.createElement('div');
+			
+	dNode = document.createElement("input");
+  dNode.setAttribute('type','text');
+	dNode.style.cursor='text';
+	dNode.setAttribute('value','Cashflow');
+	dNode.onclick = editSave;
+	dNode.setAttribute('data-info','edit and save');
+	
+	iNode.appendChild(dNode);
+			
+	dNode = document.createElement("input");
+  dNode.setAttribute('type','number');
+	dNode.setAttribute('value',result);
+	dNode.readOnly = true;
+	dNode.style.fontWeight = "700";
+	dNode.setAttribute('data-info','Cashflow');
+		
+	iNode.appendChild(dNode);
+			
+	gNode.appendChild(iNode);
+	dataDiv.appendChild(gNode);
+	
+	
+	gNode = document.createElement('div');
+	iNode = document.createElement('div');
 	
 }
 
+var intms;
+var incInt;
+var incVal;
+var incLim=100;
+var incNode;
 
+function incStart()
+{
+ var intms=100;
+ 
+ //alert(this.value)
+ 
+ if(this.value.indexOf('+')>-1)
+ {
+  incVal=1;
+	incNode=this.previousElementSibling;
+ }
+ else
+ {
+  incVal=-1;
+  incNode=this.nextElementSibling;
+ }
+ 
+ //alert(this.value+' '+incNode.value)
+ incInt=setInterval(inc, intms);
+ 
+}
+
+function incStop()
+{
+ clearInterval(incInt);
+}
+
+function inc()
+{
+ 
+ var v=parseInt(incNode.value);
+// alert(v+' '+incVal);
+ if((incVal==-1&&v>-incLim)||(incVal==1&&v<incLim))
+ {
+   v=v+incVal;
+   incNode.value=v;
+	 change();	 
+ }
+ else
+ {
+  incStop();
+ }
+}
+
+function change()
+{
+	if(typeof(this)=='undefined')
+	{
+	  incNode=this;
+	}
+	
+	itemNode =incNode.parentNode.parentNode;
+	gNode=itemNode.parentNode;
+	
+	var baseVal=itemNode.childNodes[1].getAttribute('data-base');
+	
+	itemNode.childNodes[1].value=Math.round(baseVal*(1+incNode.value/100));
+	if(itemNode.childNodes[1].readOnly != true)
+	{
+	 gcalc();
+	}
+	else
+	{
+	 result();
+	}
+}
+
+function zero()
+{
+	itemNode =this.parentNode.parentNode;
+	gNode=itemNode.parentNode;
+	
+	this.value=0;
+	var baseVal=itemNode.childNodes[1].getAttribute('data-base');
+	itemNode.childNodes[1].value=baseVal;
+	gcalc();
+}
+
+function add()
+{
+    itemNode=this.parentNode.parentNode;
+	  gNode=itemNode.parentNode;
+		
+		this.nextSibling.src='./hide.svg';
+	 
+	  for(var i=1;i<gNode.children.length;i++)
+    {
+ 		 gNode.children[i].style.display='block';
+	  }   
+		
+		var addNode=itemNode.cloneNode(true);
+		
+		addNode.childNodes[0].setAttribute('value','new item');
+		addNode.childNodes[0].onclick = editSave;
+		addNode.childNodes[0].onchange=saveData;
+		
+		addNode.childNodes[1].style.backgroundColor="#ccffff";
+		addNode.childNodes[1].onclick = editSave;
+		addNode.childNodes[1].onchange=base;
+		addNode.childNodes[1].readOnly = false;	
+		addNode.childNodes[1].style.fontWeight = "400";
+		
+		addNode.childNodes[2].childNodes[0].onmouseover=incStart;
+		addNode.childNodes[2].childNodes[0].onmouseout=incStop;
+	
+		addNode.childNodes[2].childNodes[1].onchange=change;
+		addNode.childNodes[2].childNodes[1].ondblclick = zero;
+			
+		addNode.childNodes[2].childNodes[2].onmouseover=incStart;
+		addNode.childNodes[2].childNodes[2].onmouseout=incStop;
+		
+		var arNode=addNode.childNodes[3];
+		arNode.childNodes[0].setAttribute('src', './remove.svg');
+		arNode.childNodes[0].onclick = remove;
+	  arNode.childNodes[0].setAttribute('data-info','remove item');
+		
+		arNode.removeChild(arNode.childNodes[1]);
+			
+		gNode.insertBefore(addNode, itemNode.nextSibling);
+		
+		itemNode.childNodes[1].style.backgroundColor="#ffffff";
+		itemNode.childNodes[1].value=0;
+		itemNode.childNodes[1].setAttribute('data-base',0)
+		itemNode.childNodes[1].readOnly = true;
+		itemNode.childNodes[1].style.fontWeight = "700";
+		itemNode.childNodes[1].setAttribute('data-info',itemNode.childNodes[0].value+ ' total');
+			
+		itemNode.childNodes[1].style.cursor='none';
+		
+		gcalc();
+		
+		saveData();
+}
+
+function remove()
+{
+   itemNode=this.parentNode.parentNode;
+   gNode=itemNode.parentNode;
+	
+	 gNode.removeChild(itemNode);
+	 if(gNode.childNodes.length==1)
+	 {	 
+		 gNode.firstChild.childNodes[1].style.backgroundColor="#ccffff";
+		 gNode.firstChild.childNodes[1].onclick = editSave;
+		 gNode.firstChild.childNodes[1].setAttribute('data-info','edit and save');	 
+		 gNode.firstChild.childNodes[1].onchange=base;
+		 gNode.firstChild.childNodes[1].style.cursor='text';
+		 gNode.firstChild.childNodes[1].value=0;
+		 gNode.firstChild.childNodes[1].setAttribute('data-base',0);
+		 gNode.firstChild.childNodes[1].readOnly = false;	
+		 gNode.firstChild.childNodes[1].style.fontWeight = "400"; 
+	 }
+	 gcalc();
+	 saveData();
+}
+
+
+function gcalc()
+{
+	var gvalNode=gNode.firstChild.childNodes[1];
+	var gtot=0;
+	if(gNode.childNodes.length>1)
+	{
+	 for(var i=1;i<gNode.childNodes.length;i++)
+   {
+ 		gtot+=parseInt(gNode.childNodes[i].childNodes[1].value);
+	 }
+	 gvalNode.value=gtot;
+	 gvalNode.setAttribute('data-base',gtot);
+	 
+	// gvalNode.nextSibling.value=0;
+	// gvalNode.nextSibling.nextSibling.value=0;
+	}
+	
+	result(); 	
+	//saveData();
+}
+
+function base()
+{
+ gNode=this.parentNode.parentNode;
+ this.setAttribute('data-base',this.value);
+ 
+ //this.nextSibling.value=0;
+ this.nextSibling.childNodes[1].value=0;
+ 
+ gcalc();
+ 
+ saveData();
+}
+
+function result()
+{
+ 	var result=0;
+	for(var g=0;g<dataDiv.children.length-1;g++)
+  {	
+		if(g==0)
+		{
+		  result=parseInt(dataDiv.children[g].children[0].children[1].value);
+		}
+		else
+		{
+		  result=result-parseInt(dataDiv.children[g].children[0].children[1].value);
+		}	
+		// alert('g '+g+ 'result '+result);	
+	}
+  dataDiv.children[dataDiv.children.length-1].children[0].children[1].value=result;
+	
+	drawChart();
+}
+
+function editSave()
+{
+ this.select();
+}
+
+function saveData()
+{
+	//var datVarInit="Revenue"+db+"100"+ib+"item"+db+"100"+gb+"Fixed Costs"+db+"50"+gb+"Variable Costs"+db+"30";
+  datVar='';
+
+  for(var g=0;g<dataDiv.children.length-1;g++)
+  {	
+		
+		for(var i=0;i<dataDiv.children[g].children.length;i++)
+		{
+		  if(i>0){datVar+=ib;}
+			//alert(dataDiv.children[g].children[i].children[0].value)
+			datVar+=dataDiv.children[g].children[i].children[0].value+db;
+			datVar+=dataDiv.children[g].children[i].children[1].value;
+		}
+		if(g<dataDiv.children.length-2){datVar+=gb};
+	}
+ 
+  if(typeof(localStorage) !== 'undefined')
+  {
+    if(localStorage[datKey])
+		{
+		  localStorage[datKey]=datVar;
+			//alert(datVar);
+		}
+  }
+}
+ 
+var chart;
+
+function drawChart()
+{
+	var rb=parseFloat(dataDiv.children[0].children[0].children[1].getAttribute('data-base'));
+	var ra=parseFloat(dataDiv.children[0].children[0].children[1].value);
+	
+	var vb=parseFloat(dataDiv.children[1].children[0].children[1].getAttribute('data-base'));
+	var va=parseFloat(dataDiv.children[1].children[0].children[1].value);
+	
+	var vbp=vb/rb;
+	//alert('vb= '+vb+', rb= '+rb+', vbp= '+vbp);
+	var vap=va/ra;
+	
+	var fb=parseFloat(dataDiv.children[2].children[0].children[1].getAttribute('data-base'));
+	var fa=parseFloat(dataDiv.children[2].children[0].children[1].value);
+	
+  var dataTable = new google.visualization.DataTable();
+  dataTable.addColumn('number', 'Revenue');
+	
+  dataTable.addColumn('number', 'Current Adjusted');
+	dataTable.addColumn({type: 'string', role: 'tooltip'});
+	dataTable.addColumn('number', 'Current Base');
+	dataTable.addColumn({type: 'string', role: 'tooltip'});
+  dataTable.addColumn('number', 'Adjusted');
+	dataTable.addColumn({type: 'string', role: 'tooltip'});
+  dataTable.addColumn('number', 'Base');
+	dataTable.addColumn({type: 'string', role: 'tooltip'});
+  //dataTable.addColumn('number', 'Change');
+	//dataTable.addColumn('number', '% Change');
+	
+	for(var y=0;y.toFixed(1)<=2;y+=.1)
+	{ 
+		var r=Math.round(rb*y);
+		var ca=Math.round(r-(r*vap)-fa);
+		var cb=Math.round(r-(r*vbp)-fb);
+		//var cfc=ca-cb;
+		//var cfp=Math.round((cfc/cb*100));
+	  
+		var ccb=null;
+		var cca=null;
+		
+		if(y.toFixed(1)==1)
+		{
+		 ccb=rb-vb-fb;
+		 cca=ra-va-fa;
+		}
+			
+		var ttcb=ccb+' Current Base Cashflow';	
+		var ttca=ccb+' Current Adjusted Cashflow';	
+		var tta=ca+' Adjusted Cashflow at Revenue '+r;
+		var ttb=cb+' Base Cashflow at Revenue '+r;
+				
+		//dataTable.addRow([r,cca,ttca,ccb,ttcb,ca,tta,cb,ttb,null,null]); 
+		
+		dataTable.addRow([r,cca,ttca,ccb,ttcb,ca,tta,cb,ttb]); 
+		
+		if(y.toFixed(1)==1)
+		{
+		 //dataTable.addRow([r,cca,ttca,ccb,ttcb,ca,tta,cb,ttb],p:{style: 'color: red;'},); 
+		 
+		 //setRowProperty(y.toFixed(1)/.5, p:{style: 'border: 1px solid green;'}name, value);
+		} 
+		
+		
+	}
+	
+	var options = {
+	 height:300,
+	 curveType: 'function',
+	 
+	 legend:{position:'in',alignment:'start',},
+		
+	 hAxis:{title:'Revenue',baseline:0,baselineColor:'red',minValue:0,},
+	 vAxis:{title:'Cashflow',baseline:0,baselineColor:'red',},
+	 
+	 lineWidth: '2',
+	 pointSize: '3',
+	 pointsVisible:true,
+	// crosshair: { trigger:'both',opacity:0.3, } ,
+	// colors:['red','green','blue'],
+	
+	 series:{
+	 0:{visibleInLegend:false,color:'#00ff00',pointSize:20,pointShape: 'star',lineWidth: 0,},
+	 1:{visibleInLegend:false,color:'#00ffff',pointSize:20,pointShape: 'star',lineWidth: 0,},
+	 2:{labelInLegend:'Adjusted Cashflow',color:'green',lineDashStyle:[2,2],},
+	 3:{labelInLegend:'Base Cashflow',color:'blue',},
+	// 4:{visibleInLegend:false,pointsVisible:false,pointSize:0,lineWidth: 0,enableInteractivity: false,},
+	// 5:{visibleInLegend:false,pointsVisible:false,pointSize:0,lineWidth: 0,enableInteractivity: false,},
+	 },
+	} 
+	 	
+	if(typeof chart=='undefined')
+	{
+	 chart = new google.visualization.LineChart(document.getElementById('chart'));
+	}
+  chart.draw(dataTable, options);
+	
+	//dataTable.addColumn('number', 'Change');
+	
+	var dataView = new google.visualization.DataView(dataTable);
+		
+	//dataView.setColumns([0,7,5,9,10]);
+	
+  dataView.setColumns([0,7,5,{calc:tabChCalc, type:'number', label:'Change'},{calc:tabChPCalc, type:'number', label:'% Change'},]);
+	
+	
+// Underlying table has a column specifying a value in centimeters.
+// The view imports this directly, and creates a calculated column
+// that converts the value into inches.
+//view.setColumns([1,{calc:cmToInches, type:'number', label:'Height in Inches'}]);
+//function cmToInches(dataTable, rowNum){
+ // return Math.floor(dataTable.getValue(rowNum, 1) / 2.54);
+
+	//dataView.setColumns([0,7,5,9,10]);
+	//dataView.hideColumns([1,2,4,6]);
+	table = new google.visualization.Table(document.getElementById('table'));
+  table.draw(dataView);
+	
+}
+
+function tabChCalc(dataTable, rowNum)
+{
+ return Math.floor(dataTable.getValue(rowNum, 7) - dataTable.getValue(rowNum, 5));
+}
+
+function tabChPCalc(dataTable, rowNum){
+  return Math.floor((dataTable.getValue(rowNum, 7) - dataTable.getValue(rowNum, 5)) / dataTable.getValue(rowNum, 5)*100);
+}
 
 </script>
 
@@ -1017,19 +1600,19 @@ function range()
 
 body{margin: auto; max-width: 900px; padding:2em; background-color: rgba(255,255,255,1); color:rgba(051,102,102,1); font-family:arial,helvetica,sans-serif; font-size: 100%; line-height:2em;}
 
-header{color:rgba(255,102,0,1); font-size:2em;line-height:2em;}
+header{color:rgba(255,102,0,1); line-height:2em;}
 header h1 {cursor: pointer;opacity:.7;font-size:1em;display:inline;}
-header h1 span {font-weight: normal;vertical-align:middle;}
-header h1 img {height:1em; width:1em;vertical-align:text-top;}
+header h1 span {font-weight: 700;vertical-align:top;}
+header h1 img {height:2em; width:2em;}
 header h1:hover{opacity:1;}
 
 header > span {float: right;}
-header > span > span img {cursor: pointer;opacity:.7; margin-left:.5em; height:1em; width:1em;vertical-align:middle;}
+header > span > span img {cursor: pointer;opacity:.7; margin-left:.5em; height:2em; width:2em;vertical-align:middle;}
 header  > span > span img:hover{opacity:1;}
 
-h2 {text-align:center;line-height:2em; font-size:2em; font-weight: normal; color:rgba(255,102,0,1);}
-h2 > img {height:1em; width:1em; vertical-align:middle;}
-h2 > span {font-size:.75em;vertical-align:middle;}
+h2 {text-align:center;line-height:2em; font-size:1em; font-weight: normal; color:rgba(255,102,0,1);}
+h2 > img {height:2em; width:2em;}
+h2 > span {vertical-align:top;}
 
 .link{background-color:rgba(255,255,255,1); cursor: pointer; color:rgba(0,0,255,1); opacity:.7;}
 .link:hover {text-decoration: none;opacity:1;}
@@ -1058,7 +1641,7 @@ h2 > span {font-size:.75em;vertical-align:middle;}
 
 .hidden{display:none;}
 
-#info{color:#997A00; text-align:right; cursor: help; font-size:smaller; line-height:1.2;padding:0px; margin:0px;}
+#info{color:#997A00; text-align:right; cursor: none; font-size:smaller; line-height:1.2;padding:0px; margin:0px;}
 
 #display {height: auto; text-align:justify;}
 
@@ -1094,38 +1677,55 @@ footer img:hover {opacity:1.0;}
 
 #valid{text-align:center;font-size:smaller; line-height:1.2;}
 
-x.inDisplay{border-style: none; outline: none;}
-x.border{border-color: rgba(240,240,240,1);border-style:solid;border-width:1px; border-radius:1em;padding:1em;margin:1em;}
-x.borderBot{border-color: rgba(240,240,240,1);border-bottom-style: solid;border-bottom-width:1px;}
-
-@media all and (max-width:600px)
-{
-#h1text {display:none;}
- h2 {display:none;}
-#display {line-height:1.2;}
-footerx{display:none;}
-}
-
 #fade {position: fixed; left: 0%;top: 0%; background-color: #000000; opacity:0.7; width: 100%;height: 100%; margin:0px; padding:0px; z-index: 199;}
 #overlay {position: fixed; left: 10%; top: 10%; width: 80%; height: 80%; margin:auto; z-index:200; background-color: #ffffff;color:#000000; border-width:0px; border-radius:1em;}
 #overlay p {padding:1em; margin:auto; vertical-align:middle; text-align:center;}
 
-#app xinput{border-style: none;outline: none;text-align:right;margin:0em;padding:0em;}
-#data {font-family:consolas,courier,monospace; font-size:1em;line-height:1em;}
-#data p :nth-child(1){text-align:right;width:7em;color:red;}
-#data input+input{text-align:right;width:5em;color:blue;}
-#data input+input+span{cursor: pointer; font-weight: 700;color:red;}
-#data input+input+span+input{cursor: pointer; font-weight: 700;width:2em;color:blue;text-align:center;}
-#data input+input+span+input+span{cursor: pointer; font-weight: 700;width:5em;color:green; js:alert('oo');}
+*{box-sizing: border-box;}
+#data{width:100%;text-align:center;margin-top:2em;}
+#data>div{border-color: rgba(240,240,240,1);border-bottom-style: solid;border-bottom-width:1px;line-height:2em;margin:0em;padding:0em;}
 
-#data p xspan{cursor: pointer; font-weight: 700; color: #ff0000;}
-#data xp:nth-child(5) {text-align:right;width:5em;color:green;}
+#data>div>div{position:relative;margin-top:.25em;margin-bottom:.25em;text-align:left;}
+
+#data input{font-size:120%;border-style:none;border-width:0em;cursor: pointer;}
+#data>div>div>input:first-of-type{width:25%;font-size:120%;font-weight: 700;text-align:left;margin-right:.5em;}
+#data>div>div>input:last-of-type{width:25%;font-size:120%;text-align:right;margin-right:.5em;}
+
+#data>div>div>div:first-of-type{display:inline;width:25%;}
+#data>div>div>div:last-of-type{display:inline;xwidth:25%;}
+
+#data>div>div>div>input{width:3em;background-color:#ccffff;text-align:center;opacity:.7;}
+#data>div>div>div button{cursor: pointer; font-size:120%; width:2em; height:2em; padding:0em;border-radius:.25em;vertical-align:middle;border-style:none;background-color:#ccffff;opacity:.7;font-weight:700;}
+#data>div>div>div button:hover{opacity:1;}
+#data>div>div>div span{font-size:120%;}
+
+#data>div:last-of-type input:last-of-type{background-color:#ffffff;cursor:none;font-weight: 700;border-bottom-style: solid;border-bottom-width:1px;}
+
+#data>div img{width:2em;height:2em;vertical-align:middle;cursor: pointer;margin:0em;padding:0em;}
+#data>div>div>div>img:first-of-type{margin-right:.5em;}
+
+#chart{width:100%;text-align:center;margin-top:2em;}
+
+#table{width:100%;text-align:center;margin-top:2em;}
+#table tr:nth-of-type(11) td{color:#0000ff;background-color:#00ffff;cursor:none;}
 
 
-#data xinput+input+span{color:blue;}
+@media all and (max-width:600px)
+{
 
+#data>div>div{margin-top:.5em;margin-bottom:.5em;text-align:left;}
 
-#xapp input{width:auto;}
+#data>div>div>input:first-of-type{width:50%;margin-right:0em;}
+#data>div>div>input:last-of-type{width:50%;margin-right:0em;text-align:center;}
+#data>div>div>div:first-of-type{width:50%;display:block;position:relative;top:0em;left:50%;}
+#data>div>div>div:last-of-type{width:50%;position:absolute;top:2em;left:0em;}
+#data>div>div>div>img:first-of-type{margin-right:0em;}
+}
+
+@media all and (max-width:500px)
+{
+ body{font-size: 80%;}
+}
 
 </style>
 
@@ -1144,25 +1744,17 @@ footerx{display:none;}
 	  </span>
 </header>
 
-<div id="info" onclick="javascript:display('help')"></div>
+<div id="info"></div>
 
 <div id="display" itemscope itemtype="http://schema.org/SoftwareApplication">
 
  <div id='app'>
   	
-  <div id='data' class='center'>
-
-	
-	<p><input type="text" value="Revenue"><input type="number" value="100"><input id='r' onchange='range()' type="range" min="-100" max="100">
-</p>
-
-	<p><input type="text" value="Revenue"><input type="text" value="100"><span onlick='dec()'>-</span><input type="text" placeholder="Revenue" value="100" id="Revenue" class=""><span onclick='inc()'>+</span><input type="range" min="-10" max="10">
-</p>
-	
-  </div>
+  <div id='data'></div>
+  <div id="chart"></div>
+  <div id="table"></div>
  
  </div>
- 
  
  <section id='help'>
  
