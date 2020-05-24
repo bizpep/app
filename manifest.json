@@ -5,12 +5,11 @@
     "icons": [
         {
             "src": "app64.svg",
-            "sizes": "64x64",
-            "type": "image/png"
+            "sizes": "64x64"
         }
     ],
     "start_url": "./index.html",
-    "display": "standalone",
+    "display": "fullscreen",
     "orientation": "portrait",
     "theme_color": "#ff9900",
     "background_color": "#ffffff"
