@@ -817,24 +817,24 @@ function editSave()
 
 
 
-//function install()	
-//{
-//	window.addEventListener('beforeinstallprompt', event);
- // alert(promptEvent);
-  //window.deferredPrompt = event;
+function install()	
+{
+	window.addEventListener('beforeinstallprompt', event);
+  alert(promptEvent);
+  window.deferredPrompt = event;
 	 
-	//promptEvent = window.deferredPrompt;
-  //if(promptEvent)
-	//{
-    //  if(promptEvent.prompt())
-			//{
-//			 document.getElementsById("install").style.display='none';
-	//		}			
-    //  window.deferredPrompt = null;  
- // }
+	promptEvent = window.deferredPrompt;
+  if(promptEvent)
+	{
+      if(promptEvent.prompt())
+			{
+			 document.getElementsById("install").style.display='none';
+			}			
+      window.deferredPrompt = null;  
+  }
 	
-//	alert(promptEvent);
-//}
+	alert(promptEvent);
+}
 
 function helpHover()
 {
@@ -1733,9 +1733,9 @@ footer img:hover {opacity:1.0;}
 
 <body onload="javascript:init();">
 
-<!-- 
+
 <div id="install" class="hidden textcenter"><button type="button" xonclick="javascript:install()">Install</button></div>
-	 -->	
+
 <header>   
 		 <h1 onclick="javascript:display('app')" data-info='run Cashflow Business'><img src="./app64.svg" alt="app"><span id="h1text">Cashflow Business</span></h1>
 		<span>

@@ -4,8 +4,7 @@
     "description": "Cashflow Business projection",
     "icons": [
         {
-            "src": "app64.svg",
-            "sizes": "64x64"
+            "src": "app64.svg"
         }
     ],
     "start_url": "./index.html",
